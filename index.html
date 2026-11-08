@@ -244,10 +244,64 @@ body.noscroll{overflow:hidden}
 .pv-cost b{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .pv-cost .m{color:var(--muted)}
 .tip-img{display:block;width:100%;height:110px;object-fit:cover;border-radius:5px;margin-bottom:6px;max-width:100%}
+/* ---- compare up to four trips ---- */
+.vs-tray{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--ink);border-radius:10px;padding:8px 10px;margin:0 0 12px;padding-top:max(8px,env(safe-area-inset-top,0px))}
+.vs-tray{min-width:0;max-width:100%}
+.vs-tray[hidden]{display:none}
+.vs-tray b{white-space:nowrap;font-size:14px}
+.vs-picks{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:thin;contain:inline-size}
+.vs-pick{font:inherit;font-size:13px;font-weight:600;white-space:nowrap;background:var(--chip);color:var(--ink);border:1px solid var(--ink);border-radius:999px;padding:5px 10px;cursor:pointer}
+.vs-msg{font-size:13px;font-weight:600;white-space:nowrap}
+.vs-msg:empty{display:none}
+.vs-hint{margin:0;padding:9px 12px;font-size:13.5px;color:var(--ink);border-bottom:1px solid var(--line)}
+.vs-tick{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;cursor:pointer}
+.vs-tick input{width:20px;height:20px;accent-color:var(--drive);cursor:pointer;margin:0}
+.btn.vs-on{background:var(--chip-on);color:var(--chip-on-ink);border-color:transparent}
+.pop .pa{flex-wrap:wrap}
+.vs{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
+.vs[hidden]{display:none}
+.vs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));padding-top:max(10px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);background:var(--panel)}
+.vs-bar h2{font-family:var(--display);font-size:20px;margin:0;flex:1;min-width:120px}
+.vs-bar .seg{margin:0}
+.vs-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.vs-t{table-layout:fixed;width:100%;min-width:calc(150px + var(--n)*210px);font-size:14px;line-height:1.4;background:var(--panel)}
+.vs-t th,.vs-t td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-weight:400;overflow-wrap:break-word}
+.vs-t col.rl{width:150px}
+.vs-rl{position:sticky;left:0;z-index:2;background:var(--panel);font-family:var(--mono);font-size:11.5px!important;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.vs-lab{display:none}
+.vs-photo td,.vs-photo th{padding:0;border:0}
+.vs-photo img,.vs-photo .noimg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.vs-name th{position:sticky;top:0;z-index:3;background:var(--panel);border-bottom:2px solid var(--ink)}
+.vs-name th.vs-rl{z-index:4}
+.vs-nm{display:flex;gap:6px;align-items:flex-start}
+.vs-nm .num{flex:none;width:26px;height:26px}
+.vs-nm strong{font-family:var(--display);font-size:16px;line-height:1.15;font-weight:700}
+.vs-acts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.vs-acts .btn{font-size:12.5px;padding:5px 10px}
+.vs-sec th{background:var(--bg);font-family:var(--display);font-size:16px;font-weight:700;border-bottom:2px solid var(--ink)}
+.vs-sec button{all:unset;cursor:pointer;font-weight:700}
+.vs-sec button:focus-visible{outline:2px solid var(--drive);outline-offset:2px}
+.vs-sec span,.vs-lab span{position:sticky;left:12px;display:inline-block}
+.vs-total{font-family:var(--mono);font-size:21px;font-weight:600;font-variant-numeric:tabular-nums}
+.vs-sub{display:block;color:var(--muted);font-size:12.5px}
+.vs-best{display:inline-block;margin-top:3px;font-size:12.5px;font-weight:700;border:1.5px solid var(--ink);border-radius:999px;padding:0 8px}
+.vs-num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.vs-bar2{height:7px;background:var(--drive);border-radius:2px;margin-top:4px}
+.vs-t ul{margin:0;padding-left:16px;font-size:13.5px}.vs-t li{margin-bottom:4px}
+@media (max-width:700px){
+  .vs-t{min-width:calc(var(--n)*46vw)}
+  .vs-nm strong{font-size:14px}.vs-nm .num{width:22px;height:22px}
+  .vs-t col.rl,.vs-rl{display:none}
+  .vs-lab{display:table-row}
+  .vs-lab th{padding:8px 12px 0;border:0;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--panel)}
+  .vs-t td{padding-top:3px}
+  .vs-tray{flex-wrap:wrap}.vs-picks{order:3;flex-basis:100%}.vs-tray .btn.primary{margin-left:auto}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <div class="wrap">
+  <div class="vs-tray" id="vsTray" role="region" aria-label="Trips picked to compare" hidden></div>
   <header>
     <div>
       <h1>Family Break Trip Map</h1>
@@ -263,7 +317,7 @@ body.noscroll{overflow:hidden}
 
   <div class="controls" role="group" aria-label="Filters">
     <div class="group" id="modeGroup"><span class="glabel">Getting there</span></div>
-    <div class="group" id="tagGroup"><span class="glabel">Vibe</span></div>
+    <div class="group" id="tagGroup"><span class="glabel">Vibe MUST have:</span></div>
     <div class="group">
       <label class="glabel" for="breakSel">Break</label>
       <select id="breakSel"><option value="any">Either</option><option value="feb">Feb break</option><option value="mar">March break</option></select>
@@ -292,9 +346,10 @@ body.noscroll{overflow:hidden}
   </div>
 
   <div class="tablebox">
+    <p class="vs-hint"><b>Compare trips:</b> tick up to four in the first column, then press Compare at the top of the page.</p>
     <table class="cmp">
       <thead><tr>
-        <th><button data-sort="n">#</button></th><th><button data-sort="name">Trip</button></th><th><button data-sort="mode">How</button></th>
+        <th scope="col">Compare</th><th><button data-sort="n">#</button></th><th><button data-sort="name">Trip</button></th><th><button data-sort="mode">How</button></th>
         <th><button data-sort="hrs">Travel time</button></th><th><button data-sort="when">Best break</button></th><th style="text-align:right"><button data-sort="feb">Feb</button></th><th style="text-align:right"><button data-sort="mar">March</button></th><th><button data-sort="vibe">Vibe</button></th>
       </tr></thead>
       <tbody id="rows"></tbody>
@@ -303,6 +358,7 @@ body.noscroll{overflow:hidden}
 
   <p class="foot">Flights and lodging were re-checked Oct 29, 2026 for the exact break dates (Feb 13–21 and Mar 20–28, 2027), for a family of four. Flights are Google Flights round-trip fares for 4 including taxes: nonstop from JFK, LGA, EWR or HPN where one exists, otherwise the cheapest same-day connection of 12 hours or less, with cheaper options noted. These are the cheapest fares shown, often basic economy, so fly trips add $320 for one checked bag each. Holiday-week fares move daily and usually climb. Lodging is priced so everyone gets a real bed: one for the parents and one for each teen, with no sofa beds or rollaways. That means a rental with 2+ bedrooms and 3+ beds, or two hotel or resort rooms (or a family suite with 3 real beds). Prices are live Airbnb and Expedia totals for the exact nights at the budget-realistic end (about the 30th percentile), with local tax added, re-checked Oct 31, 2026. Activities, fees and gas come from operator and official sites. All-inclusive resorts (purple pins) were priced Oct 31, 2026 for 8 nights matching the flights (Feb 13–21 or Mar 20–28), for 2 adults plus teens 14 and 16, mostly as live Expedia totals with taxes and fees, in a room that really sleeps 4 (or 2 rooms where the resort requires it). Beaches and Coconut Bay don't sell through Expedia, so those are marked lower-confidence estimates. Fly trips include about $700 to board the dog and $200 for airport parking or rides. Break dates: Feb 13–21 and Mar 20–28, 2027. March break is Holy Week, so Latin American trips are at peak local demand that week.</p>
 </div>
+<div class="vs" id="vs" role="dialog" aria-modal="true" aria-label="Trip comparison" hidden></div>
 <div class="story" id="story" role="dialog" aria-modal="true" aria-label="Trip details" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -327,9 +383,9 @@ const tierTxt=t=>{const i=tierOf(Math.min(t.feb,t.mar)); return `${TIERS[i][1]} 
 const cost=t=> state.brk==="feb"?t.feb : state.brk==="mar"?t.mar : Math.min(t.feb,t.mar);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-const state = {mode:"all", tags:new Set(), brk:"any", max:5, sel:null, sort:"feb", dir:1, pv:null};
-try{ const s=JSON.parse(localStorage.getItem("fbtm2")||"null"); if(s){ state.mode=s.mode||"all"; state.tags=new Set(s.tags||[]); state.brk=s.brk||"any"; state.max=(s.max>=1&&s.max<=5)?s.max:5; } }catch(e){}
-function save(){ try{ localStorage.setItem("fbtm2",JSON.stringify({mode:state.mode,tags:[...state.tags],brk:state.brk,max:state.max})); }catch(e){} }
+const state = {mode:"all", tags:new Set(), brk:"any", max:5, sel:null, sort:"feb", dir:1, pv:null, cmp:[], vs:null};
+try{ const s=JSON.parse(localStorage.getItem("fbtm2")||"null"); if(s){ state.mode=s.mode||"all"; state.tags=new Set(s.tags||[]); state.brk=s.brk||"any"; state.max=(s.max>=1&&s.max<=5)?s.max:5; state.cmp=(s.cmp||[]).filter(id=>TRIPS.some(t=>t.id===id)).slice(0,4); } }catch(e){}
+function save(){ try{ localStorage.setItem("fbtm2",JSON.stringify({mode:state.mode,tags:[...state.tags],brk:state.brk,max:state.max,cmp:state.cmp})); }catch(e){} }
 
 function passes(t){
   if(state.mode==="ai"){ if(!t.ai) return false; }
@@ -424,7 +480,7 @@ function placePop(){
 }
 function showPop(d){
   const st=S(d.id); popId=d.id; hideTip();
-  pop.innerHTML=`${img(st.hero,"",d.name,true)}<button class="px" aria-label="Close preview">✕</button><div class="pb"><h4>${d.n}. ${esc(d.name)}</h4><span class="m">${esc(d.place)}</span><p class="pc">${d.mode==="drive"?"🚗":"✈️"} ${esc(d.travel)}<br><span class="m">Feb</span> <b>${fmt(d.feb)}</b> · <span class="m">Mar</span> <b>${fmt(d.mar)}</b> <span class="m">for 4</span></p><div class="pa"><button class="btn primary" id="popMore">More →</button><span class="m">${WHEN[d.when]}</span></div></div>`;
+  pop.innerHTML=`${img(st.hero,"",d.name,true)}<button class="px" aria-label="Close preview">✕</button><div class="pb"><h4>${d.n}. ${esc(d.name)}</h4><span class="m">${esc(d.place)}</span><p class="pc">${d.mode==="drive"?"🚗":"✈️"} ${esc(d.travel)}<br><span class="m">Feb</span> <b>${fmt(d.feb)}</b> · <span class="m">Mar</span> <b>${fmt(d.mar)}</b> <span class="m">for 4</span></p><div class="pa"><button class="btn primary" id="popMore">More →</button>${cmpBtn(d.id)}<span class="m">${WHEN[d.when]}</span></div></div>`;
   pop.hidden=false; placePop();
   const im=pop.querySelector("img"); if(im) im.onload=placePop;
   pop.querySelector(".px").onclick=e=>{e.stopPropagation(); hidePop();};
@@ -504,7 +560,7 @@ function render(t){
   ${doorHTML(t)}
   ${glance(t)}
   <p class="pv-cost"><span>${TIERS[tierOf(Math.min(t.feb,t.mar))][1]}</span><span>Feb <b>${fmt(t.feb)}</b></span><span>March <b>${fmt(t.mar)}</b></span><span class="m">for 4</span></p>
-  <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="pvGo">See the week</button><button class="chip" id="clearSel">← All ideas</button></p>`;
+  <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="pvGo">See the week</button>${cmpBtn(t.id)}<button class="chip" id="clearSel">← All ideas</button></p>`;
   document.getElementById("pvOpen").onclick=document.getElementById("pvGo").onclick=()=>openStory(t.id);
   document.getElementById("clearSel").onclick=()=>select(null);
 }
@@ -558,7 +614,7 @@ function openStory(id){
   const credits=[st.hero,...days.map(d=>d.photo)].filter(p=>p&&(p.file||p.inb));
   lastFocus=document.activeElement;
   story.innerHTML=`<div class="st-hero">${img(st.hero,"st-heroimg",t.name,true)}
-    <button class="st-back" id="stBack">← Back to all trips</button>
+    <button class="st-back" id="stBack">${backTxt()}</button>
     <button class="st-close" id="stClose" aria-label="Close">✕</button>
     <div class="st-herotext"><div class="badges"><span class="badge ${t.cls}">${modeBadge(t,true)}</span><span class="badge glass">${esc(t.travel)}</span><span class="badge glass">${WHEN[t.when]}</span>${t.passport?'<span class="badge glass">Passports</span>':""}</div>
     <h2>${esc(t.name)}</h2><p class="st-place">${esc(t.place)}</p><p class="st-pitch">${esc(t.pitch)}</p></div></div>
@@ -576,12 +632,13 @@ function openStory(id){
     </div>
     ${bookHTML(t)}
     <div class="st-actions">
+      ${cmpBtn(id)}
       <button class="btn" id="stCosts" aria-expanded="false">See costs · Feb ${fmt(t.feb)} · March ${fmt(t.mar)}</button>
       ${t.notes&&t.notes.length?`<button class="btn ghost" id="stNotes" aria-expanded="false">Heads-up (${t.notes.length})</button>`:""}
     </div>
     <div class="st-panel" id="stCostPanel" hidden></div>
     ${t.notes&&t.notes.length?`<div class="st-panel notes-panel" id="stNotePanel" hidden><ul>${t.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></div>`:""}
-    <p><button class="btn st-back2">← Back to all trips</button></p>
+    <p><button class="btn st-back2">${backTxt()}</button></p>
     ${credits.length?`<details class="credits"><summary>Photo credits (Wikimedia Commons)</summary><ul>${credits.map(p=>`<li><a href="${esc(p.page)}" target="_blank" rel="noopener">${esc(p.artist||"Unknown")}</a>, ${esc(p.license||"")}</li>`).join("")}</ul></details>`:""}
   </div>`;
   story.dataset.id=id; story.hidden=false; document.body.classList.add("noscroll"); story.scrollTop=0; loadGal(id);
@@ -596,8 +653,8 @@ function openStory(id){
   document.getElementById("stClose").focus();
   try{history.replaceState(null,"","#"+id);}catch(e){}
 }
-function closeStory(){ story.hidden=true; story.innerHTML=""; document.body.classList.remove("noscroll"); if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!story.hidden) closeStory(); else if(!pop.hidden) hidePop(); } });
+function closeStory(){ story.hidden=true; story.innerHTML=""; if(vsEl.hidden){ document.body.classList.remove("noscroll"); } else { vsHash(); } if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ if(!story.hidden) closeStory(); else if(!vsEl.hidden) closeCompare(); else if(!pop.hidden) hidePop(); } });
 function select(id,pan){
   if(id!==state.sel) state.pv=null; state.sel=id;
   mk.classed("sel",d=>d.id===id);
@@ -617,16 +674,93 @@ function table(){
     const k=state.sort; const va=a[k], vb=b[k];
     return (typeof va==="number"? va-vb : String(va).localeCompare(String(vb)))*state.dir;
   });
-  rows.innerHTML=list.map(t=>`<tr data-id="${t.id}" tabindex="0" class="${t.id===state.sel?"sel":""}"><td><svg class="num ${t.cls}" viewBox="-14 -14 28 28" role="img" aria-label="${t.ai?"All-inclusive":t.mode==="drive"?"Drive":"Fly"}, trip ${t.n}"><path class="pin ${t.cls}" d="${PIN[t.cls]}"/><text>${t.n}</text></svg></td><td><strong>${t.name}</strong> <span class="vibes">${TIERS[tierOf(Math.min(t.feb,t.mar))][1]}</span><br><span class="vibes">${t.place}</span></td><td>${t.ai?"Fly · all-inclusive":t.mode==="drive"?"Drive":"Fly"}${t.passport?" · passport":""}</td><td>${t.travel}${t.hours?`<br><span class="vibes">about ${t.hours} hr door to door${t.mode==="drive"?" (longest day)":""}</span>`:""}</td><td>${WHEN[t.when]}</td><td class="a">${fmt(t.feb)}</td><td class="a">${fmt(t.mar)}</td><td class="vibes">${t.ai&&t.resort?`<b>${esc(t.resort.tier)}</b> ${esc(t.resort.vibe)}${state.mode==="ai"&&t.resort.teens?`<br>Teens: ${esc(t.resort.teens)}`:""}`:t.tags.map(x=>TAGS[x]).join(", ")}</td></tr>`).join("");
+  rows.innerHTML=list.map(t=>`<tr data-id="${t.id}" tabindex="0" class="${t.id===state.sel?"sel":""}"><td class="vs-cell"><label class="vs-tick"><input type="checkbox" data-tick="${t.id}" aria-label="Compare ${esc(t.name)}" ${state.cmp.includes(t.id)?"checked":""}></label></td><td><svg class="num ${t.cls}" viewBox="-14 -14 28 28" role="img" aria-label="${t.ai?"All-inclusive":t.mode==="drive"?"Drive":"Fly"}, trip ${t.n}"><path class="pin ${t.cls}" d="${PIN[t.cls]}"/><text>${t.n}</text></svg></td><td><strong>${t.name}</strong> <span class="vibes">${TIERS[tierOf(Math.min(t.feb,t.mar))][1]}</span><br><span class="vibes">${t.place}</span></td><td>${t.ai?"Fly · all-inclusive":t.mode==="drive"?"Drive":"Fly"}${t.passport?" · passport":""}</td><td>${t.travel}${t.hours?`<br><span class="vibes">about ${t.hours} hr door to door${t.mode==="drive"?" (longest day)":""}</span>`:""}</td><td>${WHEN[t.when]}</td><td class="a">${fmt(t.feb)}</td><td class="a">${fmt(t.mar)}</td><td class="vibes">${t.ai&&t.resort?`<b>${esc(t.resort.tier)}</b> ${esc(t.resort.vibe)}${state.mode==="ai"&&t.resort.teens?`<br>Teens: ${esc(t.resort.teens)}`:""}`:t.tags.map(x=>TAGS[x]).join(", ")}</td></tr>`).join("");
   document.querySelectorAll("th button[data-sort]").forEach(b=>b.parentElement.setAttribute("aria-sort", b.dataset.sort===state.sort ? (state.dir>0?"ascending":"descending") : "none"));
   rows.querySelectorAll("tr").forEach(r=>{
     r.onclick=()=>{select(r.dataset.id,true); openStory(r.dataset.id);};
-    r.onkeydown=e=>{if(e.key==="Enter") r.onclick();};
+    r.onkeydown=e=>{if(e.key==="Enter"&&e.target===r) r.onclick();};
+    r.querySelector(".vs-cell").onclick=e=>e.stopPropagation();
+    r.querySelector("[data-tick]").onchange=e=>{ if(!toggleCmp(r.dataset.id)) e.target.checked=false; };
   });
 }
 document.querySelectorAll("th button[data-sort]").forEach(b=>b.onclick=()=>{
   const k=b.dataset.sort; state.dir = state.sort===k ? -state.dir : 1; state.sort=k; table();
 });
+
+// ---------- compare up to four ----------
+const vsTray=document.getElementById("vsTray"), vsEl=document.getElementById("vs"), VS_MAX=4;
+const inCmp=id=>state.cmp.includes(id);
+const cmpBtn=id=>`<button class="btn ${inCmp(id)?"vs-on":""}" data-cmp="${id}" aria-pressed="${inCmp(id)}">${inCmp(id)?"✓ In compare":"+ Compare"}</button>`;
+const backTxt=()=>vsEl.hidden?"← Back to all trips":"← Back to comparison";
+let vsMsg="", vsTimer=0;
+function toggleCmp(id){
+  if(inCmp(id)) state.cmp=state.cmp.filter(x=>x!==id);
+  else if(state.cmp.length>=VS_MAX){ vsMsg="Four is the most. Remove one first."; clearTimeout(vsTimer); vsTimer=setTimeout(()=>{vsMsg=""; syncCmp();},3500); syncCmp();
+    document.querySelectorAll(`button[data-cmp="${id}"]`).forEach(b=>b.textContent="Four max: remove one"); return false; }
+  else state.cmp.push(id);
+  vsMsg=""; save(); syncCmp(); return true;
+}
+function syncCmp(){
+  document.querySelectorAll("[data-tick]").forEach(c=>c.checked=inCmp(c.dataset.tick));
+  document.querySelectorAll("button[data-cmp]").forEach(b=>{const on=inCmp(b.dataset.cmp); b.classList.toggle("vs-on",on); b.setAttribute("aria-pressed",on); b.textContent=on?"✓ In compare":"+ Compare";});
+  const n=state.cmp.length; vsTray.hidden=!n;
+  vsTray.innerHTML=!n?"":`<b>Compare ${n} of ${VS_MAX}</b><div class="vs-picks">${state.cmp.map(id=>{const t=TRIPS.find(x=>x.id===id); return `<button class="vs-pick" data-off="${id}" aria-label="Remove ${esc(t.name)}">${esc(t.name)} ✕</button>`;}).join("")}</div><span class="vs-msg" role="status">${esc(vsMsg)}</span><button class="btn primary" id="vsGo" ${n<2?"disabled":""}>${n<2?"Pick one more":"Compare →"}</button><button class="chip" id="vsClear">Clear</button>`;
+  if(n){ vsTray.querySelectorAll("[data-off]").forEach(b=>b.onclick=()=>toggleCmp(b.dataset.off));
+    document.getElementById("vsGo").onclick=openCompare; document.getElementById("vsClear").onclick=()=>{state.cmp=[]; vsMsg=""; save(); syncCmp();}; }
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("button[data-cmp]"); if(b){e.stopPropagation(); toggleCmp(b.dataset.cmp);}},true);
+const VS_CATS=[["Flights + bags",/^flights|^bags \+ seats/i],["Dog, insurance, airport parking",/dog (boarding|sitter|daycare|walker)|\bpet fees?\b|insurance|airport parking/i],["Lodging",/night|lodging|condo|apartment|villa|cabin|cottage|guesthouse|resort fees/i],["Food",/\bfood\b|groceries|meals|diners|lunch/i],["Car, gas, transfers",/car rental|rental car|pickup truck|\bgas\b|\bfuel\b|tolls|parking|transfers/i]];
+function vsCats(t,k){ const out=VS_CATS.map(()=>0); let other=0;
+  t.p[k].forEach(c=>{const i=VS_CATS.findIndex(x=>x[1].test(c.l)); if(i<0) other+=c.a; else out[i]+=c.a;});
+  return [["Flights + bags",out[0]],["Lodging",out[2]],["Food",out[3]],["Car, gas, transfers",out[4]],["Activities, dives, tips, fees",other],["Dog, insurance, airport parking",out[1]]]; }
+const vsHash=()=>{try{history.replaceState(null,"","#compare="+state.cmp.join(","));}catch(e){}};
+function drawCompare(){
+  const list=state.cmp.map(id=>TRIPS.find(x=>x.id===id));
+  if(!list.length){ closeCompare(); return; }
+  const k=state.vs, kn=k==="feb"?"Feb":"March", n=list.length, oth=k==="feb"?"mar":"feb";
+  const row=(label,fn)=>`<tr class="vs-lab"><th colspan="${n}"><span>${label}</span></th></tr><tr><th class="vs-rl" scope="row">${label}</th>${list.map(t=>`<td>${fn(t)}</td>`).join("")}</tr>`;
+  const sec=(label,extra)=>`<tr class="vs-sec"><th colspan="${n+1}" class="vs-secd"><span>${label}</span></th></tr>`;
+  const low=Math.min(...list.map(t=>t.tot[k])), lowH=Math.min(...list.map(t=>t.hrs)), allT=list.every(t=>t.tot[k]===low), allH=list.every(t=>t.hrs===lowH);
+  const cats=list.map(t=>vsCats(t,k));
+  const catRows=cats[0].map(([lab],i)=>{const mx=Math.max(1,...cats.map(c=>c[i][1])); return row(lab,t=>{const v=cats[list.indexOf(t)][i][1]; return `<span class="vs-num">${fmt(v)}</span><div class="vs-bar2" style="width:${v/mx*100}%"></div>`;});}).join("");
+  const dash='<span class="vs-sub">n/a</span>';
+  const anyAI=list.some(t=>t.ai&&t.resort);
+  const res=f=>t=>t.resort&&t.resort[f]?esc(t.resort[f]):dash;
+  const maxD=Math.max(...list.map(t=>t.itin.length));
+  const dayRows=Array.from({length:maxD},(_,i)=>row("Day "+(i+1),t=>{const s=t.itin[i]; return s?esc(s.slice(s.indexOf("|")+1)):dash;})).join("");
+  const toggle=(id,label,cnt)=>`<tr class="vs-sec"><th colspan="${n+1}"><span><button aria-expanded="false" data-vs-open="${id}">▸ ${label}</button></span></th></tr>`;
+  const scrollX=vsEl.querySelector(".vs-scroll"), keep=scrollX?[scrollX.scrollLeft,scrollX.scrollTop]:null;
+  vsEl.innerHTML=`<div class="vs-bar"><button class="btn" id="vsBack">${"← Back to all trips"}</button><h2>Compare ${n} trip${n>1?"s":""}</h2><div class="seg" role="group" aria-label="Which break"><button data-vs="feb" aria-pressed="${k==="feb"}">Feb 13–21</button><button data-vs="mar" aria-pressed="${k==="mar"}">Mar 20–28</button></div></div>
+  <div class="vs-scroll" tabindex="0"><table class="vs-t" style="--n:${n}"><colgroup><col class="rl">${list.map(()=>"<col>").join("")}</colgroup>
+  <thead><tr class="vs-photo"><th class="vs-rl"></th>${list.map(t=>`<td>${img(S(t.id).hero,"",t.name,true)}</td>`).join("")}</tr>
+  <tr class="vs-name"><th class="vs-rl" scope="row">Trip</th>${list.map(t=>`<th scope="col"><div class="vs-nm"><svg class="num ${t.cls}" viewBox="-14 -14 28 28" aria-hidden="true"><path class="pin ${t.cls}" d="${PIN[t.cls]}"/><text>${t.n}</text></svg><strong>${esc(t.name)}</strong></div><div class="vs-acts"><button class="btn" data-vs-go="${t.id}">Open</button><button class="btn" data-vs-off="${t.id}" aria-label="Remove ${esc(t.name)}">✕ Remove</button></div></th>`).join("")}</tr></thead>
+  <tbody>${sec(`Cost for 4, ${kn} break`)}
+  ${row("Total",t=>`<span class="vs-total">${fmt(t.tot[k])}</span><span class="vs-sub">≈ ${fmt(t.tot[k]/4)} per person</span><span class="vs-sub">${oth==="feb"?"Feb":"March"}: ${fmt(t.tot[oth])}</span>${n>1&&!allT&&t.tot[k]===low?'<span class="vs-best">✓ Lowest</span>':""}`)}
+  ${catRows}
+  ${sec("Getting there")}
+  ${row("How",t=>esc(modeBadge(t)))}
+  ${row("Travel",t=>`${esc(t.travel)}${t.hrs?`<span class="vs-sub">about ${t.hrs} hr door to door${t.mode==="drive"?", longest day":""}</span>`:""}${n>1&&!allH&&t.hrs===lowH?'<span class="vs-best">✓ Shortest</span>':""}`)}
+  ${row("Passports",t=>t.passport?"⚠ Needed":"✓ Not needed")}
+  ${row("Best break",t=>`${WHEN[t.when]}${t.when!=="either"&&t.when!==k?`<span class="vs-best">⚠ Better in ${t.when==="feb"?"Feb":"March"}</span>`:""}`)}
+  ${sec("The trip")}
+  ${row("Why go",t=>esc(t.pitch))}
+  ${row("Vibe",t=>esc(t.vibe))}
+  ${row("Beds",t=>t.beds?esc(t.beds):dash)}
+  ${anyAI?row("Resort rating",res("rating"))+row("Beach",res("beach"))+row("For teens",res("teens"))+row("Diving",res("dive")):""}
+  ${row("Splurge",t=>t.splurge?`${esc(t.splurge[0])}<span class="vs-sub">+${fmt(t.splurge[1])}, not in total</span>`:dash)}
+  ${row("How to save",t=>t.save?esc(t.save):dash)}
+  ${toggle("days","Day by day")}</tbody><tbody id="vs-days" hidden>${dayRows}</tbody>
+  <tbody>${toggle("notes","Heads-up notes")}</tbody><tbody id="vs-notes" hidden>${row("Heads-up",t=>t.notes&&t.notes.length?`<ul>${t.notes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:dash)}</tbody>
+  </table></div>`;
+  const sc=vsEl.querySelector(".vs-scroll"); if(keep){sc.scrollLeft=keep[0]; sc.scrollTop=keep[1];}
+  document.getElementById("vsBack").onclick=closeCompare;
+  vsEl.querySelectorAll("[data-vs]").forEach(b=>b.onclick=()=>{state.vs=b.dataset.vs; drawCompare();});
+  vsEl.querySelectorAll("[data-vs-off]").forEach(b=>b.onclick=()=>{toggleCmp(b.dataset.vsOff); vsHash(); drawCompare();});
+  vsEl.querySelectorAll("[data-vs-go]").forEach(b=>b.onclick=()=>openStory(b.dataset.vsGo));
+  vsEl.querySelectorAll("[data-vs-open]").forEach(b=>b.onclick=()=>{const p=document.getElementById("vs-"+b.dataset.vsOpen), open=p.hidden; p.hidden=!open; b.setAttribute("aria-expanded",open); b.textContent=(open?"▾ ":"▸ ")+b.textContent.slice(2);});
+}
+function openCompare(){ if(state.cmp.length<1) return; hidePop(); state.vs=state.vs||(state.brk!=="any"?state.brk:"feb"); vsEl.innerHTML=""; vsEl.hidden=false; document.body.classList.add("noscroll"); drawCompare(); vsHash(); const b=document.getElementById("vsBack"); if(b) b.focus(); }
+function closeCompare(){ vsEl.hidden=true; vsEl.innerHTML=""; document.body.classList.remove("noscroll"); try{history.replaceState(null,"",state.sel?"#"+state.sel:location.pathname+location.search);}catch(e){} const g=document.getElementById("vsGo"); if(g) g.focus(); }
 
 function refresh(){
   modeGroup.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===state.mode));
@@ -642,6 +776,8 @@ function refresh(){
 }
 svg.call(zoom.transform,VIEWS.americas);
 refresh();
+syncCmp();
 const h=location.hash.slice(1);
-if(h && TRIPS.some(t=>t.id===h)){ select(h,true); openStory(h); } else intro();
+if(h.startsWith("compare=")){ const ids=h.slice(8).split(",").filter(id=>TRIPS.some(t=>t.id===id)).slice(0,4); intro(); if(ids.length){ state.cmp=ids; save(); syncCmp(); table(); openCompare(); } }
+else if(h && TRIPS.some(t=>t.id===h)){ select(h,true); openStory(h); } else intro();
 </script>
