@@ -273,6 +273,9 @@ body.noscroll{overflow:hidden}
 .vs-lab{display:none}
 .vs-photo td,.vs-photo th{padding:0;border:0}
 .vs-photo img,.vs-photo .noimg{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.vs-gal .gal-track{aspect-ratio:16/9}
+.vs-gal .gal-btn{width:40px;height:40px;font-size:26px;background:rgba(10,20,19,.72)}
+.vs-gal figcaption{font-size:12px;font-weight:400;text-align:left}
 .vs-name th{position:sticky;top:0;z-index:3;background:var(--panel);border-bottom:2px solid var(--ink)}
 .vs-name th.vs-rl{z-index:4}
 .vs-nm{display:flex;gap:6px;align-items:flex-start}
@@ -292,6 +295,7 @@ body.noscroll{overflow:hidden}
 .vs-t ul{margin:0;padding-left:16px;font-size:13.5px}.vs-t li{margin-bottom:4px}
 @media (max-width:700px){
   .vs-t{min-width:calc(var(--n)*46vw)}
+  .vs-gal .gal-track{aspect-ratio:4/3}.vs-gal .gal-btn{width:32px;height:32px;font-size:22px}.vs-gal .gal-btn.prev{left:4px}.vs-gal .gal-btn.next{right:4px}
   .vs-nm strong{font-size:14px}.vs-nm .num{width:22px;height:22px}
   .vs-t col.rl,.vs-rl{display:none}
   .vs-lab{display:table-row}
@@ -581,7 +585,7 @@ function dayBody(id,i,d){
     ${d.text?`<details class="more"><summary>Read more</summary><p>${esc(d.text)}</p></details>`:""}`;
 }
 const GAL={};
-window.GAL_LOAD=(id,data)=>{GAL[id]=data; if(!story.hidden&&story.dataset.id===id) fillGal(id);};
+window.GAL_LOAD=(id,data)=>{GAL[id]=data; if(!story.hidden&&story.dataset.id===id) fillGal(id); if(!vsEl.hidden) vsFillGal(id);};
 function galHTML(d,i){
   const first=d.photo&&d.photo.file?`<figure class="gal-slide">${img(d.photo,"day-img",d.title||d.day,i<3)}</figure>`:`<figure class="gal-slide gal-empty"><div class="day-img noimg" aria-hidden="true"></div></figure>`;
   return `<div class="gal" data-i="${i}"><div class="gal-track">${first}</div><button class="gal-btn prev" aria-label="Previous photo" hidden>‹</button><button class="gal-btn next" aria-label="Next photo" hidden>›</button><span class="gal-count" hidden></span></div>`;
@@ -735,10 +739,11 @@ function drawCompare(){
   const maxD=Math.max(...list.map(t=>t.itin.length));
   const dayRows=Array.from({length:maxD},(_,i)=>row("Day "+(i+1),t=>{const s=t.itin[i]; return s?esc(s.slice(s.indexOf("|")+1)):dash;})).join("");
   const toggle=(id,label,cnt)=>`<tr class="vs-sec"><th colspan="${n+1}"><span><button aria-expanded="false" data-vs-open="${id}">▸ ${label}</button></span></th></tr>`;
+  const galPos={}; vsEl.querySelectorAll("[data-vs-g] .gal-track").forEach(x=>galPos[x.parentElement.dataset.vsG]=x.scrollLeft);
   const scrollX=vsEl.querySelector(".vs-scroll"), keep=scrollX?[scrollX.scrollLeft,scrollX.scrollTop]:null;
   vsEl.innerHTML=`<div class="vs-bar"><button class="btn" id="vsBack">${"← Back to all trips"}</button><h2>Compare ${n} trip${n>1?"s":""}</h2><div class="seg" role="group" aria-label="Which break"><button data-vs="feb" aria-pressed="${k==="feb"}">Feb 13–21</button><button data-vs="mar" aria-pressed="${k==="mar"}">Mar 20–28</button></div></div>
   <div class="vs-scroll" tabindex="0"><table class="vs-t" style="--n:${n}"><colgroup><col class="rl">${list.map(()=>"<col>").join("")}</colgroup>
-  <thead><tr class="vs-photo"><th class="vs-rl"></th>${list.map(t=>`<td>${img(S(t.id).hero,"",t.name,true)}</td>`).join("")}</tr>
+  <thead><tr class="vs-photo"><th class="vs-rl"></th>${list.map(t=>`<td><div class="gal vs-gal" data-vs-g="${t.id}"><div class="gal-track"><figure class="gal-slide">${img(S(t.id).hero,"day-img",t.name,true)}</figure></div><button class="gal-btn prev" aria-label="Previous photo of ${esc(t.name)}" hidden>‹</button><button class="gal-btn next" aria-label="Next photo of ${esc(t.name)}" hidden>›</button><span class="gal-count" hidden></span></div></td>`).join("")}</tr>
   <tr class="vs-name"><th class="vs-rl" scope="row">Trip</th>${list.map(t=>`<th scope="col"><div class="vs-nm"><svg class="num ${t.cls}" viewBox="-14 -14 28 28" aria-hidden="true"><path class="pin ${t.cls}" d="${PIN[t.cls]}"/><text>${t.n}</text></svg><strong>${esc(t.name)}</strong></div><div class="vs-acts"><button class="btn" data-vs-go="${t.id}">Open</button><button class="btn" data-vs-off="${t.id}" aria-label="Remove ${esc(t.name)}">✕ Remove</button></div></th>`).join("")}</tr></thead>
   <tbody>${sec(`Cost for 4, ${kn} break`)}
   ${row("Total",t=>`<span class="vs-total">${fmt(t.tot[k])}</span><span class="vs-sub">≈ ${fmt(t.tot[k]/4)} per person</span><span class="vs-sub">${oth==="feb"?"Feb":"March"}: ${fmt(t.tot[oth])}</span>${n>1&&!allT&&t.tot[k]===low?'<span class="vs-best">✓ Lowest</span>':""}`)}
@@ -759,11 +764,25 @@ function drawCompare(){
   <tbody>${toggle("notes","Heads-up notes")}</tbody><tbody id="vs-notes" hidden>${row("Heads-up",t=>t.notes&&t.notes.length?`<ul>${t.notes.map(x=>`<li>${noteHTML(x)}</li>`).join("")}</ul>`:dash)}</tbody>
   </table></div>`;
   const sc=vsEl.querySelector(".vs-scroll"); if(keep){sc.scrollLeft=keep[0]; sc.scrollTop=keep[1];}
+  list.forEach(t=>vsLoadGal(t.id,galPos[t.id]));
   document.getElementById("vsBack").onclick=closeCompare;
   vsEl.querySelectorAll("[data-vs]").forEach(b=>b.onclick=()=>{state.vs=b.dataset.vs; drawCompare();});
   vsEl.querySelectorAll("[data-vs-off]").forEach(b=>b.onclick=()=>{toggleCmp(b.dataset.vsOff); vsHash(); drawCompare();});
   vsEl.querySelectorAll("[data-vs-go]").forEach(b=>b.onclick=()=>openStory(b.dataset.vsGo));
   vsEl.querySelectorAll("[data-vs-open]").forEach(b=>b.onclick=()=>{const p=document.getElementById("vs-"+b.dataset.vsOpen), open=p.hidden; p.hidden=!open; b.setAttribute("aria-expanded",open); b.textContent=(open?"▾ ":"▸ ")+b.textContent.slice(2);});
+}
+const vsAsked=new Set();
+function vsFillGal(id,pos){
+  const el=vsEl.querySelector(`[data-vs-g="${id}"]`), g=GAL[id]; if(!el||!g||el.dataset.done) return;
+  el.dataset.done=1;
+  const tr=el.querySelector(".gal-track"), list=Object.keys(g).sort((a,b)=>a-b).flatMap(k=>g[k]);
+  tr.insertAdjacentHTML("beforeend",list.map(p=>`<figure class="gal-slide"><img class="day-img" src="${p.src}" alt="${esc(p.caption||"")}" loading="lazy" decoding="async">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:""}</figure>`).join(""));
+  setupGal(el); if(pos) tr.scrollLeft=pos;
+}
+function vsLoadGal(id,pos){
+  if(GAL[id]) return vsFillGal(id,pos);
+  if(vsAsked.has(id)) return; vsAsked.add(id);
+  const s=document.createElement("script"); s.src=`gal/${id}.js`; s.async=true; s.onerror=()=>{s.remove(); vsAsked.delete(id);}; document.head.appendChild(s);
 }
 function openCompare(){ if(state.cmp.length<1) return; hidePop(); state.vs=state.vs||(state.brk!=="any"?state.brk:"feb"); vsEl.innerHTML=""; vsEl.hidden=false; document.body.classList.add("noscroll"); drawCompare(); vsHash(); const b=document.getElementById("vsBack"); if(b) b.focus(); }
 function closeCompare(){ vsEl.hidden=true; vsEl.innerHTML=""; document.body.classList.remove("noscroll"); try{history.replaceState(null,"",state.sel?"#"+state.sel:location.pathname+location.search);}catch(e){} const g=document.getElementById("vsGo"); if(g) g.focus(); }
