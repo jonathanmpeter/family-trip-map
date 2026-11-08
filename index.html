@@ -747,12 +747,12 @@ function drawCompare(){
   <tr class="vs-name"><th class="vs-rl" scope="row">Trip</th>${list.map(t=>`<th scope="col"><div class="vs-nm"><svg class="num ${t.cls}" viewBox="-14 -14 28 28" aria-hidden="true"><path class="pin ${t.cls}" d="${PIN[t.cls]}"/><text>${t.n}</text></svg><strong>${esc(t.name)}</strong></div><div class="vs-acts"><button class="btn" data-vs-go="${t.id}">Open</button><button class="btn" data-vs-off="${t.id}" aria-label="Remove ${esc(t.name)}">✕ Remove</button></div></th>`).join("")}</tr></thead>
   <tbody>${sec(`Cost for 4, ${kn} break`)}
   ${row("Total",t=>`<span class="vs-total">${fmt(t.tot[k])}</span><span class="vs-sub">≈ ${fmt(t.tot[k]/4)} per person</span><span class="vs-sub">${oth==="feb"?"Feb":"March"}: ${fmt(t.tot[oth])}</span>${n>1&&!allT&&t.tot[k]===low?'<span class="vs-best">✓ Lowest</span>':""}`)}
+  ${row("Best break",t=>t.when==="either"?"Works in either break":t.when===k?`<span class="vs-best">✓ Best in ${kn}</span>`:`<span class="vs-best">⚠ Better in ${t.when==="feb"?"Feb":"March"}</span>`)}
   ${catRows}
   ${sec("Getting there")}
   ${row("How",t=>esc(modeBadge(t)))}
   ${row("Travel",t=>`${esc(t.travel)}${t.hrs?`<span class="vs-sub">about ${t.hrs} hr door to door${t.mode==="drive"?", longest day":""}</span>`:""}${n>1&&!allH&&t.hrs===lowH?'<span class="vs-best">✓ Shortest</span>':""}`)}
   ${row("Passports",t=>t.passport?"⚠ Needed":"✓ Not needed")}
-  ${row("Best break",t=>`${WHEN[t.when]}${t.when!=="either"&&t.when!==k?`<span class="vs-best">⚠ Better in ${t.when==="feb"?"Feb":"March"}</span>`:""}`)}
   ${sec("The trip")}
   ${row("Why go",t=>esc(t.pitch))}
   ${row("Vibe",t=>esc(t.vibe))}
